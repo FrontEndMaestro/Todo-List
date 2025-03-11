@@ -17,48 +17,67 @@ function uiController() {
     const priorityinput = document.querySelector("dialog form .form-wrapper #priority")
     const project = document.querySelector("dialog form #addtoproject")
     const today = document.querySelector(".sidebar .today")
-    const upcomingTasks=document.querySelector(".sidebar .upcoming")
-    const AllProjects = [];
-    const AllTasks = [];
-    let taskIndex;
-    const defaultProject = new projectClass();
-    let isUpdating = false;
-    AllProjects.push(defaultProject)
+    const upcomingTasks = document.querySelector(".sidebar .upcoming")
+    const addproject = document.querySelector(".sidebar .projects .myprojects")
+    const projectDialog = document.getElementById("projectDialog");
+    const closeDialog = document.getElementById("closeDialog");
+    const projectInput = document.querySelector(".projectInput")
+    const projectSubmit = document.querySelector("#submitProject")
+    const projectList = document.querySelector(".project-list");
 
-
-    document.addEventListener("DOMContentLoaded",()=>{
-        if (upcomingTasks) {
-            upcomingTasks.click();
-        } else {
-            console.error("Element '.sidebar .upcoming' not found.");
-        }
-    })
-
-
-    const task1 = new todo("Finish Report", "Complete the monthly sales report", "2025-03-10", "high");
-    const task2 = new todo("Grocery Shopping", "Buy vegetables, milk, and eggs", "2025-03-05", "medium");
-
-    const task3 = new todo("Gym Session", "Leg day workout at 6 PM", "2025-03-07", "high");
-
-    const task4 = new todo("Birthday Party", "Plan Jake's surprise birthday party", "2025-03-15", "low");
-
-    const task5 = new todo("Study JavaScript", "Review closures and async functions", "2025-03-12", "high");
-    AllTasks.push(task1)
-    AllTasks.push(task2)
-    AllTasks.push(task3)
-    AllTasks.push(task4)
-    AllTasks.push(task5)
-    
-
-    console.log(AllTasks)
-    //instance of default project
 
 
     //avoid selecting past dates with date input in dialog
     const todaydate = new Date().toISOString().slice(0, 10);
     dateinput.setAttribute("min", todaydate);
 
+    const AllProjects = [];
+    const AllTasks = [];
+    let taskIndex;
+    const defaultProject = new projectClass('Personal');
+    let isUpdating = false;
+    AllProjects.push(defaultProject)
+    DisplayProjects()
+
+    const task1 = new todo("Finish Report", "Complete the monthly sales report", "2025-03-10", "high");
+    const task2 = new todo("Grocery Shopping", "Buy vegetables, milk, and eggs", "2025-03-05", "medium");
+    const task3 = new todo("Gym Session", "Leg day workout at 6 PM", "2025-03-07", "high");
+    const task4 = new todo("Birthday Party", "Plan Jake's surprise birthday party", "2025-03-15", "low");
+    const task5 = new todo("Study JavaScript", "Review closures and async functions", "2025-03-12", "high");
+    AllTasks.push(task1)
+    AllTasks.push(task2)
+    AllTasks.push(task3)
+    AllTasks.push(task4)
+    AllTasks.push(task5)
+    defaultProject.addtoproject(task1)
+    defaultProject.addtoproject(task2)
+    defaultProject.addtoproject(task3)
+    defaultProject.addtoproject(task4)
+    defaultProject.addtoproject(task5)
+
+    upcomingTasks.addEventListener('click', () => {
+        upcomingTasks.classList.add('active');
+        displayAllTasks();
+    })
+    upcomingTasks.click()
+
+    today.addEventListener('click', () => {
+        upcomingTasks.classList.remove('active');
+        DisplayTodayTasks()
+
+    })
+
+    function DisplayTodayTasks() {
+        todoBoard.innerHTML = ''
+        AllTasks.forEach((element, index) => {
+            if (element.date === todaydate) {
+                createCard(element.title, element.description, element.date, element.priority, element, index);
+            }
+        })
+    }
+
     const elementsArray = document.querySelectorAll("dialog form>input ,#date-picker,dialog form .form-wrapper #priority")
+
     //disabling add button if title is empty 
     const validate = () => {
         if (isUpdating === false && document.querySelector("dialog form>input").value == "" || !dateinput.value || priorityinput.value === "labeler") {
@@ -72,48 +91,86 @@ function uiController() {
         element.addEventListener("input", validate)
     })
 
-    today.addEventListener('click', () => {
-        DisplayTodayTasks()
+
+    addproject.addEventListener("click", () => {
+        projectDialog.showModal()
 
     })
-    upcomingTasks.addEventListener('click',()=>{
-        displayAllTasks();
+    closeDialog.addEventListener('click', () => {
+        projectInput.value = ""
+        projectDialog.close()
     })
+    projectSubmit.addEventListener("click", () => {
+        if (!projectInput.value.trim()) {
+            projectInput.reportValidity();
+        }
+        else {
+
+            const copystring = projectInput.value[0].toUpperCase() + projectInput.value.slice(1)
+            const newProject = new projectClass(copystring);
+            AllProjects.push(newProject)
+            closeDialog.click()
+
+        }
+        DisplayProjects();
+
+    })
+
+    function DisplayProjects() {
+        projectList.innerHTML = ""
+        for (let i = 1; i < project.length; i++) {
+            project[i].remove;
+        }
+
+        AllProjects.forEach(element => {
+
+            const li = document.createElement("button");
+            li.textContent = element.title;
+            projectList.appendChild(li);
+            if (element.title != 'Personal') {
+                project.options[project.options.length] = new Option(`${element.title}`, `${element.title}`)
+            }
+        })
+        const projectButtons = projectList.querySelectorAll("*")
+        projectButtons.forEach(element => {
+            element.addEventListener("click", (event) => {
+                DisplayProjectTasks(event.target.textContent);
+
+            })
+        })
+
+    }
+
+    function DisplayProjectTasks(projectTitle) {
+        todoBoard.innerHTML=""
+        AllProjects.forEach((project) => {
+            if (project.title === projectTitle) {
+                project.tasks.forEach((element)=>{
+                    let index=AllTasks.findIndex(t=>t.title===element.title && t.date===element.date)
+                    createCard(element.title, element.description, element.date, element.priority, element, index);
+                })
+            }
+        })
+
+    }
 
 
     submitNewTask.addEventListener("click", (e) => {
         e.preventDefault();
         if (isUpdating == false) {
-            if (project.value === 'personal') {
-                const task = new todo(titleinput.value, descriptioninput.textContent, dateinput.value, priorityinput.value)
-                defaultProject.addtoproject(task);
-                console.log(dateinput.value)
-                /*   defaultProject.tasks.forEach(element => {
-                       console.log(element)
-                   })*/
 
+            let index = AllProjects.findIndex(element=>element.title===project.value);
+            const task = new todo(titleinput.value, descriptioninput.textContent, dateinput.value, priorityinput.value)
+            AllProjects[index].addtoproject(task);
+            //AllProjects[index].addtoproject(task)
+            console.log(AllProjects[index])
 
-                AllTasks.push(task);
-                console.log(AllTasks);
-
-                upcomingTasks.click()
-            }
+            AllTasks.push(task);
+            
             cancel.click();
-
+            upcomingTasks.focus()
         }
         else if (isUpdating == true && taskIndex != -1) {
-
-            /*const updateIndex=AllTasks.findIndex(element=>{
-                console.log(element.title)
-            
-                element.title==titleinput.value})
-            AllTasks[updateIndex].title=titleinput.value;
-            AllTasks[updateIndex].title=descriptioninput.value;
-            AllTasks[updateIndex].title=dateinput.value;
-            AllTasks[updateIndex].title=priorityinput.value;
-            */
-
-            console.log(taskIndex)
             AllTasks[taskIndex].updateTodo(titleinput.value, descriptioninput.textContent, dateinput.value, priorityinput.value);
             displayAllTasks()
             console.log(AllTasks);
@@ -125,17 +182,6 @@ function uiController() {
             alert('error');
         }
     })
-
-    function DisplayTodayTasks(){
-        todoBoard.innerHTML = ''
-        AllTasks.forEach((element, index) => {
-            if(element.date===todaydate){
-                console.log(element.date + "today date "+todaydate)
-                createCard(element.title, element.description, element.date, element.priority, element, index);
-        
-            }
-        })
-    }
 
     function displayAllTasks() {
         todoBoard.innerHTML = ''
@@ -160,12 +206,9 @@ function uiController() {
         monthNum = format(parsedDate, 'MMMM');
         day = format(parsedDate, "dd");
 
-
-
         titleWrapper.classList.add("title-wrapper")
         checkbox.type = "checkbox";
         checkbox.value = "completed";
-
         checkbox.setAttribute('id', 'completed');
         titleWrapper.setAttribute('style', 'gap:5px; display:flex;margin-bottom: 3px;padding:7px 20px;border-bottom: 1px solid #eee; width:100%;')
 
@@ -178,7 +221,6 @@ function uiController() {
         const descriptionCard = document.createElement('p');
         const dateCard = document.createElement("div");
         dateCard.classList.add("date-display");
-        const line = document.createElement('hr')
 
         checkbox.addEventListener('change', () => {
             if (checkbox.checked) {
@@ -202,25 +244,34 @@ function uiController() {
 
         editbutton.addEventListener("click", (event) => {
             taskIndex = event.target.dataset.index;
-            //  console.log(taskIndex)
             const clickedTask = AllTasks[taskIndex]
 
-            //  console.log(clickedTask.title)
             titleinput.value = clickedTask.title;
             descriptioninput.textContent = clickedTask.description;
             dateinput.value = clickedTask.date;
             priorityinput.value = clickedTask.priority;
-            // console.log(clickedTask)
             isUpdating = true;
             dialog.showModal();
 
         })
 
         deletebutton.addEventListener('click', (event) => {
-
+            let currentProjectTitle;
             taskIndex = event.target.dataset.index;
+             
+            const titleTask=AllTasks[taskIndex]
+            console.log(titleTask)
+            AllProjects.forEach(project=>{
+                const index=project.tasks.findIndex(task=>task.title===titleTask.title)
+
+                if(index!=-1){
+                    project.tasks.splice(index,1)
+                }
+                currentProjectTitle=project.title
+            })
             AllTasks.splice(taskIndex, 1)
-            displayAllTasks();
+            DisplayProjectTasks(currentProjectTitle);
+            console.log(AllTasks)
         })
 
         if (priority === 'high') {
@@ -234,9 +285,12 @@ function uiController() {
         }
 
         titleHeading.textContent = title;
+        if (date < todaydate) {
+            dateCard.setAttribute('style', "color:#db0000;")
+        }
 
         descriptionCard.textContent = description;
-        dateCard.textContent = `Due ${day} ${monthNum}`;
+        dateCard.textContent = `${day} ${monthNum}`;
         titleWrapper.appendChild(checkbox);
         titleWrapper.appendChild(titleHeading);
         titleWrapper.appendChild(editbutton)
@@ -244,28 +298,30 @@ function uiController() {
         taskCard.appendChild(titleWrapper)
         taskCard.appendChild(descriptionCard)
         taskCard.appendChild(dateCard)
-        taskCard.appendChild(line)
+        //taskCard.appendChild(line)
         todoBoard.appendChild(taskCard);
     }
 
 
-
-
+    //sidebar addTask
     addTask.addEventListener("click", () => {
+        upcomingTasks.classList.remove('active');
         dialog.showModal();
-        //addTask.style.backgroundColor = "#faebca"
     })
 
+    //dialog cancel
     cancel.addEventListener("click", (e) => {
         e.preventDefault();
-        //addTask.style.backgroundColor = "#f5f4f4"
+        addTask.blur()
         titleinput.value = "";
         descriptioninput.textContent = "";
         dateinput.value = ""
         priorityinput.value = "labeler"
         dialog.close();
+        //upcomingTasks.focus()
+        displayAllTasks()
     })
-    defaultProject.displayAllTasks();
+    //defaultProject.displayAllTasks();
 }
 
 document.addEventListener("DOMContentLoaded", () => {

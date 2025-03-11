@@ -76,7 +76,7 @@ h6 {
 }
 
 .sidebar>button,
-.myprojects {
+.myprojects,.project-list button {
   text-align: left;
   gap: 10px;
   display: flex;
@@ -87,11 +87,28 @@ h6 {
   border-radius: 5px;
 }
 
-.myprojects {
+
+
+.myprojects,.project-list button {
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 0px;
   font-size: 1.2rem;
   width: 100%;
+
+}
+
+hr{
+  margin-top: 15px;
+}
+
+.project-list{
+  padding: 0px;
+}
+
+.project-list button{
+  font-style: oblique;
+font-size: 1rem;
+  margin-top: 0px;
 }
 
 .maincontent {
@@ -107,32 +124,23 @@ h6 {
   justify-items: start;
 }
 
-.sidebar>button:hover,
-.myprojects:hover,
-.add-project:hover {
+.sidebar > button:hover,
+.myprojects:hover,.project-list button:hover {
   background-color: var(--hover-color);
 }
 
-.sidebar .addtask:active{
+.sidebar .addtask:active,.project-list button:active{
   background-color: #faebca;
 }
 
-.add-project {
-  position: relative;
-  left: 12em;
-  bottom: 1.9em;
-  background-color: var(--background-color);
-  opacity: 0.7;
-  padding: 0px;
-  border: none;
+.upcoming.active{
+  background-Color : "#faebca";
 }
 
-.add-project:hover {
-  opacity: 1;
-}
+
 
 .sidebar>button:focus,
-.myprojects:focus {
+.myprojects:focus,.project-list button:focus {
   background-color: var(--focus-color);
 
 }
@@ -161,9 +169,14 @@ dialog>form {
   flex-direction: column;
 }
 
-form>input {
+form>input,.projectInput {
   width: 100%;
   border: none;
+}
+
+.projectInput{
+  margin-bottom: 15px;
+  font-size: 1.1rem;
 }
 
 input:focus {
@@ -210,7 +223,7 @@ form>:first-child {
   justify-content: space-between;
 }
 
-.add-cancel-project button {
+.add-cancel-project button,#submitProject,#closeDialog {
   border: none;
   border-radius: 5px;
   padding: 4px 10px;
@@ -222,13 +235,28 @@ form>:first-child {
   color: white;
 }
 
-.add-cancel-project .submit:enabled {
+#closeDialog,#submitProject{
+  float: right;
+  min-height: 10%;
+  min-width: 15%;
+}
+
+#submitProject{
+  color: white;
+  margin-left: 5px;
+}
+
+#submitProject:hover{
+  background-color: rgb(199, 71, 71);
+}
+
+.add-cancel-project .submit:enabled,#submitProject {
   background-color: rgb(233, 81, 81);
 }
 
 
 
-.cancel:hover {
+.cancel:hover,#closeDialog:hover  {
   background-color: rgb(224, 224, 224);
 }
 
